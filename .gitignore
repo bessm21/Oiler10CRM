@@ -1,0 +1,7 @@
+# Ignore configuration files with real keys
+config.php
+.env
+
+# Ignore IDE and OS files
+.idea/
+.DS_Store
