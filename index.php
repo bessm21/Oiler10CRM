@@ -1,4 +1,4 @@
-<?php require_once 'config.php'; ?>
+<?php require_once 'core/config.php'; ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,7 +12,6 @@
 
 <div class="app-container">
     <?php include 'components/sidebar.php'; ?>
-
     <?php include 'pages/dashboard.php'; ?>
 </div>
 
