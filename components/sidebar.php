@@ -8,19 +8,33 @@
     </div>
 
     <nav class="nav-menu">
-        <a href="index.php" class="nav-link active">
+        <a href="javascript:void(0);"
+           class="nav-link active"
+           onclick="switchPage('dashboard-view')">
             <span class="icon">🏠</span> Overview
         </a>
-        <a href="#" class="nav-link">
+
+        <a href="javascript:void(0);"
+           class="nav-link"
+           onclick="switchPage('dashboard-view')">
             <span class="icon">📁</span> Projects
         </a>
-        <a href="#" class="nav-link">
+
+        <a href="javascript:void(0);"
+           class="nav-link"
+           onclick="switchPage('calendar-view')">
             <span class="icon">📅</span> Calendar
         </a>
-        <a href="#" class="nav-link">
+
+        <a href="javascript:void(0);"
+           class="nav-link"
+           onclick="switchPage('dashboard-view')">
             <span class="icon">✅</span> To-Do List
         </a>
-        <a href="#" class="nav-link">
+
+        <a href="javascript:void(0);"
+           class="nav-link"
+           onclick="switchPage('contacts-view')">
             <span class="icon">👥</span> Contacts
         </a>
     </nav>

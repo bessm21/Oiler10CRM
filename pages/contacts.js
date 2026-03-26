@@ -45,13 +45,7 @@ function saveContact() {
     } else {
         addContact();
     }
-    const name = document.getElementById("name").value;
-    const id = document.getElementById("contactId").value;
-    if (id) {
-        addActivity(`Updated ${name}`);
-    } else {
-        addActivity(`Added ${name}`);
-    }
+    // Activity logging is now handled inside addContact and updateContact success blocks
 }
 
 function addContact() {
@@ -74,10 +68,12 @@ function addContact() {
     })
         .then(response => response.json())
         .then(data => {
-            console.log("add_contacts.php response:", data);
-
             if (data.success) {
-                contacts.push(data);
+                // Combine the returned ID with the contact data so the UI shows the details
+                const newContact = { id: data.id, ...contact };
+                contacts.push(newContact);
+
+                addActivity(`Added ${contact.name}`);
                 updateUI();
                 closeModal();
             } else {
@@ -137,6 +133,7 @@ function updateContact() {
                     String(c.id) === String(contact.id) ? contact : c
                 );
 
+                addActivity(`Updated ${contact.name}`);
                 updateUI();
                 closeModal();
             } else {
@@ -235,6 +232,9 @@ function updateStats() {
 }
 
 function deleteContact(id) {
+    const contact = contacts.find(c => String(c.id) === String(id));
+    if (!contact) return;
+
     fetch("pages/delete_contact.php", {
         method: "POST",
         headers: {
@@ -245,7 +245,8 @@ function deleteContact(id) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                contacts = contacts.filter(contact => String(contact.id) !== String(id));
+                contacts = contacts.filter(c => String(c.id) !== String(id));
+                addActivity(`Deleted ${contact.name}`);
                 updateUI();
             } else {
                 alert("Could not delete contact: " + data.message);
@@ -255,8 +256,6 @@ function deleteContact(id) {
             console.error("Delete error:", error);
             alert("Something went wrong while deleting the contact.");
         });
-    const contact = contacts.find(c => c.id == id);
-    addActivity(`Deleted ${contact.name}`);
 }
 
 function getActivities() {
