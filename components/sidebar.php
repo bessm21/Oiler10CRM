@@ -8,19 +8,19 @@
     </div>
 
     <nav class="nav-menu">
-        <a href="/Oiler10CRM/index.php" class="nav-link active">
+        <a href="index.php" class="nav-link active">
             <span class="icon">🏠</span> Overview
         </a>
-        <a href="/Oiler10CRM/pages/projects.php" class="nav-link">
+        <a href="#" class="nav-link">
             <span class="icon">📁</span> Projects
         </a>
-        <a href="/Oiler10CRM/pages/Calendar.php" class="nav-link">
+        <a href="#" class="nav-link">
             <span class="icon">📅</span> Calendar
         </a>
-        <a href="/Oiler10CRM/pages/todo.php" class="nav-link">
+        <a href="#" class="nav-link">
             <span class="icon">✅</span> To-Do List
         </a>
-        <a href="/Oiler10CRM/pages/contacts.php" class="nav-link">
+        <a href="#" class="nav-link">
             <span class="icon">👥</span> Contacts
         </a>
     </nav>
