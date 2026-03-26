@@ -1,5 +1,5 @@
 <?php
-require_once "../config.php"; // change to ../core/config.php if your config is in /core
+require_once __DIR__ . '/../config.php'; // change to ../core/config.php if your config is in /core
 
 /* GET MONTH + YEAR */
 $month = isset($_GET['month']) ? (int)$_GET['month'] : (int)date("n");
@@ -104,7 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
     }
 
-    header("Location: Calendar.php?month=" . $month . "&year=" . $year);
+    header("Location: index.php?page=calendar&month=" . $month . "&year=" . $year);
     exit();
 }
 
@@ -181,56 +181,6 @@ $months = array(
         12 => "December"
 );
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-</head>
-<body>
-
-<div class="app-container">
-
-    <aside class="sidebar">
-        <div class="brand">
-            <div class="logo-box">O10</div>
-            <div>
-                <h2>Oiler 10</h2>
-                <p>Customer Management</p>
-            </div>
-        </div>
-
-        <nav class="nav-menu">
-            <a href="../index.php" class="nav-link">
-                <span class="icon">🏠</span> Overview
-            </a>
-            <a href="projects.php" class="nav-link">
-                <span class="icon">📁</span> Projects
-            </a>
-            <a href="Calendar.php" class="nav-link active">
-                <span class="icon">📅</span> Calendar
-            </a>
-            <a href="#" class="nav-link">
-                <span class="icon">✅</span> To-Do List
-            </a>
-            <a href="#" class="nav-link">
-                <span class="icon">👥</span> Contacts
-            </a>
-        </nav>
-
-        <div class="user-profile">
-            <div class="avatar">B</div>
-            <div class="user-info">
-                <span class="name">bodiugiulian</span>
-                <span class="email">user@gmail.com</span>
-            </div>
-            <button class="logout-btn">
-                <span class="icon">🚪</span> Logout
-            </button>
-        </div>
-    </aside>
 
     <main class="main-content">
         <div class="page-header">
@@ -560,5 +510,3 @@ $months = array(
     };
 </script>
 
-</body>
-</html>

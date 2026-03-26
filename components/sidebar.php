@@ -1,3 +1,5 @@
+<?php $currentPage = $page ?? 'overview'; ?>
+
 <aside class="sidebar">
     <div class="brand">
         <div class="logo-box">O10</div>
@@ -8,33 +10,23 @@
     </div>
 
     <nav class="nav-menu">
-        <a href="javascript:void(0);"
-           class="nav-link active"
-           onclick="switchPage('dashboard-view')">
+        <a href="index.php?page=overview" class="nav-link <?php echo $currentPage === 'overview' ? 'active' : ''; ?>">
             <span class="icon">🏠</span> Overview
         </a>
 
-        <a href="javascript:void(0);"
-           class="nav-link"
-           onclick="switchPage('dashboard-view')">
+        <a href="index.php?page=overview" class="nav-link">
             <span class="icon">📁</span> Projects
         </a>
 
-        <a href="javascript:void(0);"
-           class="nav-link"
-           onclick="switchPage('calendar-view')">
+        <a href="index.php?page=calendar" class="nav-link <?php echo $currentPage === 'calendar' ? 'active' : ''; ?>">
             <span class="icon">📅</span> Calendar
         </a>
 
-        <a href="javascript:void(0);"
-           class="nav-link"
-           onclick="switchPage('dashboard-view')">
+        <a href="index.php?page=overview" class="nav-link">
             <span class="icon">✅</span> To-Do List
         </a>
 
-        <a href="javascript:void(0);"
-           class="nav-link"
-           onclick="switchPage('contacts-view')">
+        <a href="index.php?page=contacts" class="nav-link <?php echo $currentPage === 'contacts' ? 'active' : ''; ?>">
             <span class="icon">👥</span> Contacts
         </a>
     </nav>
