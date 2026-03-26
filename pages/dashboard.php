@@ -1,4 +1,4 @@
-<main class="main-content">
+<main id="dashboard-view" class="main-content">
     <header class="page-header">
         <h1>Dashboard Overview</h1>
         <p>Welcome back! Here's what's happening with your projects and contacts.</p>

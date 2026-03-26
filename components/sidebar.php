@@ -8,7 +8,7 @@
     </div>
 
     <nav class="nav-menu">
-        <a href="index.php" class="nav-link active">
+        <a href="#" class="nav-link active" onclick="switchPage('dashboard-view')">
             <span class="icon">🏠</span> Overview
         </a>
         <a href="#" class="nav-link">
@@ -20,7 +20,7 @@
         <a href="#" class="nav-link">
             <span class="icon">✅</span> To-Do List
         </a>
-        <a href="#" class="nav-link">
+        <a href="#" class="nav-link" onclick="switchPage('contacts-view')">
             <span class="icon">👥</span> Contacts
         </a>
     </nav>
