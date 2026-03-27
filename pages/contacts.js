@@ -1,12 +1,31 @@
 let contacts = [];
 let currentFilter = "All";
 let editMode = false;
+let pendingDeleteId = null;
 
+// --- INITIALIZATION ---
 document.addEventListener("DOMContentLoaded", () => {
     loadContacts();
-    document.getElementById("search").addEventListener("input", renderContacts);
+    renderActivities();
+
+    const searchInput = document.getElementById("search");
+    if (searchInput) {
+        searchInput.addEventListener("input", renderContacts);
+    }
 });
 
+// --- CORE DATA FETCHING ---
+function loadContacts() {
+    fetch("pages/get_contacts.php")
+        .then(response => response.json())
+        .then(data => {
+            contacts = Array.isArray(data) ? data : [];
+            updateUI();
+        })
+        .catch(error => console.error("Load error:", error));
+}
+
+// --- MODAL MANAGEMENT ---
 function openModal() {
     document.getElementById("contactModal").style.display = "block";
 }
@@ -30,26 +49,10 @@ function clearForm() {
     editMode = false;
 }
 
-function getInitials(name) {
-    let parts = name.trim().split(" ").filter(Boolean);
-
-    if (parts.length === 0) return "?";
-    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-
-    return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
-}
-
+// --- SAVE / UPDATE LOGIC ---
 function saveContact() {
-    if (editMode) {
-        updateContact();
-    } else {
-        addContact();
-    }
-    // Activity logging is now handled inside addContact and updateContact success blocks
-}
-
-function addContact() {
-    let contact = {
+    const contactData = {
+        id: document.getElementById("contactId").value,
         name: document.getElementById("name").value,
         title: document.getElementById("title").value,
         company: document.getElementById("company").value,
@@ -59,36 +62,46 @@ function addContact() {
         status: document.getElementById("status").value
     };
 
-    fetch("pages/add_contacts.php", {
+    const url = editMode ? "pages/update_contact.php" : "pages/add_contacts.php";
+    const isEdit = editMode;
+
+    let tempId = null;
+
+    if (isEdit) {
+        const idx = contacts.findIndex(c => String(c.id) === String(contactData.id));
+        if (idx !== -1) contacts[idx] = { ...contacts[idx], ...contactData };
+        addActivity(`Updated ${contactData.name}`);
+    } else {
+        tempId = "tmp_" + Date.now();
+        contacts.push({ ...contactData, id: tempId });
+        addActivity(`Added ${contactData.name}`);
+    }
+
+    updateUI();
+    closeModal();
+
+    fetch(url, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(contact)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(contactData)
     })
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
             if (data.success) {
-                // Combine the returned ID with the contact data so the UI shows the details
-                const newContact = { id: data.id, ...contact };
-                contacts.push(newContact);
-
-                addActivity(`Added ${contact.name}`);
-                updateUI();
-                closeModal();
+                if (!isEdit && data.id && tempId) {
+                    const idx = contacts.findIndex(c => c.id === tempId);
+                    if (idx !== -1) contacts[idx].id = data.id;
+                }
             } else {
-                alert("Could not save contact: " + data.message);
+                alert("Error saving contact: " + data.message);
+                loadContacts();
             }
         })
-        .catch(error => {
-            console.error("Add error:", error);
-            alert("Something went wrong while saving the contact.");
-        });
+        .catch(err => { console.error("Save error:", err); loadContacts(); });
 }
 
 function editContact(id) {
-    let contact = contacts.find(c => String(c.id) === String(id));
-
+    const contact = contacts.find(c => String(c.id) === String(id));
     if (!contact) return;
 
     document.getElementById("contactId").value = contact.id;
@@ -107,57 +120,57 @@ function editContact(id) {
     openModal();
 }
 
-function updateContact() {
-    let contact = {
-        id: document.getElementById("contactId").value,
-        name: document.getElementById("name").value,
-        title: document.getElementById("title").value,
-        company: document.getElementById("company").value,
-        email: document.getElementById("email").value,
-        phone: document.getElementById("phone").value,
-        type: document.getElementById("type").value,
-        status: document.getElementById("status").value
-    };
+// --- DELETE LOGIC ---
+function openDeleteModal(id, name) {
+    if (!id || id === "undefined") {
+        alert("CRITICAL: The card did not pass an ID.");
+        return;
+    }
 
-    fetch("pages/update_contact.php", {
+    pendingDeleteId = id;
+
+    document.getElementById("deleteMessage").textContent =
+        `Are you sure you want to delete ${name}?`;
+
+    document.getElementById("deleteModal").style.display = "flex";
+}
+
+function closeDeleteModal() {
+    pendingDeleteId = null;
+    document.getElementById("deleteModal").style.display = "none";
+}
+
+function confirmDeleteAction() {
+    if (!pendingDeleteId) {
+        alert("Error: No contact selected for deletion.");
+        return;
+    }
+
+    const idToDelete = pendingDeleteId;
+
+    // Optimistic: remove from local array and re-render immediately
+    contacts = contacts.filter(c => String(c.id) !== String(idToDelete));
+    addActivity("Deleted a contact");
+    updateUI();
+    closeDeleteModal();
+
+    // Fire delete in background
+    fetch("pages/delete_contact.php", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(contact)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: idToDelete })
     })
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
-            if (data.success) {
-                contacts = contacts.map(c =>
-                    String(c.id) === String(contact.id) ? contact : c
-                );
-
-                addActivity(`Updated ${contact.name}`);
-                updateUI();
-                closeModal();
-            } else {
-                alert("Could not update contact: " + data.message);
+            if (!data.success) {
+                alert("Database failed to delete: " + data.message);
+                loadContacts(); // re-sync if it failed
             }
         })
-        .catch(error => {
-            console.error("Update error:", error);
-            alert("Something went wrong while updating the contact.");
-        });
+        .catch(err => console.error("Server error:", err));
 }
 
-function loadContacts() {
-    fetch("pages/get_contacts.php")
-        .then(response => response.json())
-        .then(data => {
-            contacts = data;
-            updateUI();
-        })
-        .catch(error => {
-            console.error("Load error:", error);
-        });
-}
-
+// --- UI RENDERING ---
 function setFilter(filterType) {
     currentFilter = filterType;
     renderContacts();
@@ -169,190 +182,106 @@ function updateUI() {
 }
 
 function renderContacts() {
-    let container = document.getElementById("contactsContainer");
+    const container = document.getElementById("contactsContainer");
+    if (!container) return;
+
     container.innerHTML = "";
+    const searchValue = document.getElementById("search").value.toLowerCase();
 
-    let searchValue = document.getElementById("search").value.toLowerCase();
-
-    let filteredContacts = contacts.filter(contact => {
-        let matchesFilter = currentFilter === "All" || contact.type === currentFilter;
-
-        let matchesSearch =
-            contact.name.toLowerCase().includes(searchValue) ||
-            contact.company.toLowerCase().includes(searchValue) ||
-            contact.email.toLowerCase().includes(searchValue);
-
+    const filtered = contacts.filter(c => {
+        const matchesFilter = currentFilter === "All" || c.type === currentFilter;
+        const matchesSearch =
+            c.name.toLowerCase().includes(searchValue) ||
+            c.company.toLowerCase().includes(searchValue);
         return matchesFilter && matchesSearch;
     });
 
-    filteredContacts.forEach(contact => {
-        let initials = getInitials(contact.name);
+    filtered.forEach(c => {
+        const initials = getInitials(c.name || "Unknown");
 
-        let card = `
-            <div class="contactCard">
+        const card = document.createElement("div");
+        card.className = "contactCard";
+        card.innerHTML = `
+            <div class="card-header-row">
                 <div class="contactTop">
                     <div class="avatar">${initials}</div>
-                    <div>
-                        <h3>${contact.name}</h3>
-                        <p>${contact.title}</p>
+                    <div class="contactInfo">
+                        <h3>${c.name}</h3>
+                        <p class="contactTitle">${c.title || ""}</p>
                     </div>
                 </div>
-
-                <p>${contact.company}</p>
-                <p>${contact.email}</p>
-                <p>${contact.phone}</p>
-
-                <span class="tag ${contact.type.toLowerCase()}">${contact.type}</span>
-                <span class="tag ${contact.status.toLowerCase()}">${contact.status}</span>
-
-                <div class="cardActions">
-                    <button onclick="editContact(${contact.id})">Edit</button>
-                    <button onclick="openDeleteModal(${contact.id})">Delete</button>
+                <div class="card-menu-wrap">
+                    <button class="menuTrigger" aria-label="Actions">&#8942;</button>
+                    <div class="cardDropdown">
+                        <button class="editBtn">Edit</button>
+                        <button class="deleteBtn delete-red">Delete</button>
+                    </div>
                 </div>
             </div>
-        `;
+            <div class="contactDetail">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                <span>${c.company || "&mdash;"}</span>
+            </div>
+            ${(c.email || c.phone) ? `<div class="contactDetailRow">
+                ${c.email ? `<a href="mailto:${c.email}" class="contact-link contact-chip">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    ${c.email}</a>` : ""}
+                ${c.phone ? `<a href="tel:${c.phone}" class="contact-link contact-chip">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.9 15.21 19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    ${c.phone}</a>` : ""}
+            </div>` : ""}
+            <div class="contactTags">
+                <span class="tag ${(c.type || "Client").toLowerCase()}">${c.type || "Client"}</span>
+                <span class="tag ${(c.status || "Hot").toLowerCase()}">${c.status || "Hot"}</span>
+            </div>`;
 
-        container.innerHTML += card;
+        card.querySelector(".editBtn").addEventListener("click", () => editContact(c.id));
+        card.querySelector(".deleteBtn").addEventListener("click", () => openDeleteModal(c.id, c.name));
+
+        container.appendChild(card);
     });
 }
 
 function updateStats() {
-    let total = contacts.length;
-    let clients = contacts.filter(c => c.type === "Client").length;
-    let leads = contacts.filter(c => c.type === "Lead").length;
+    const total = contacts.length;
+    const clients = contacts.filter(c => c.type === "Client").length;
+    const leads = contacts.filter(c => c.type === "Lead").length;
 
     document.getElementById("totalContacts").textContent = String(total);
     document.getElementById("totalClients").textContent = String(clients);
     document.getElementById("totalLeads").textContent = String(leads);
 
     document.getElementById("contactStats").textContent =
-        `${total} Contact${total !== 1 ? "s" : ""} • ` +
-        `${clients} Client${clients !== 1 ? "s" : ""} • ` +
-        `${leads} Lead${leads !== 1 ? "s" : ""}`;
+        `${total} Contact${total !== 1 ? "s" : ""} • ${clients} Client${clients !== 1 ? "s" : ""} • ${leads} Lead${leads !== 1 ? "s" : ""}`;
 }
 
-function deleteContact(id) {
-    const contact = contacts.find(c => String(c.id) === String(id));
-    if (!contact) return;
-
-    fetch("pages/delete_contact.php", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ id: id })
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                contacts = contacts.filter(c => String(c.id) !== String(id));
-                addActivity(`Deleted ${contact.name}`);
-                updateUI();
-            } else {
-                alert("Could not delete contact: " + data.message);
-            }
-        })
-        .catch(error => {
-            console.error("Delete error:", error);
-            alert("Something went wrong while deleting the contact.");
-        });
+function getInitials(name) {
+    const parts = name.trim().split(" ").filter(Boolean);
+    if (parts.length === 0) return "?";
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
 }
 
-function getActivities() {
-    return JSON.parse(localStorage.getItem("contactActivities")) || [];
-}
-
-function saveActivities(activities) {
+// --- ACTIVITY LOGGING (LocalStorage) ---
+function addActivity(message) {
+    const activities = JSON.parse(localStorage.getItem("contactActivities")) || [];
+    activities.unshift({ text: message, timestamp: new Date().toISOString() });
+    if (activities.length > 5) activities.pop();
     localStorage.setItem("contactActivities", JSON.stringify(activities));
-}
-
-function formatActivityDate(timestamp) {
-    const date = new Date(timestamp);
-    const now = new Date();
-
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const activityDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
-    const diffTime = today - activityDay;
-    const diffDays = diffTime / (1000 * 60 * 60 * 24);
-
-    if (diffDays === 0) {
-        return date.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit"
-        });
-    } else if (diffDays === 1) {
-        return "Yesterday";
-    } else {
-        return date.toLocaleDateString();
-    }
+    renderActivities();
 }
 
 function renderActivities() {
     const activityDiv = document.getElementById("activity");
-    const activities = getActivities();
+    if (!activityDiv) return;
 
-    activityDiv.innerHTML = "";
+    const activities = JSON.parse(localStorage.getItem("contactActivities")) || [];
+    activityDiv.innerHTML = activities.length ? "" : "<p>No recent activity</p>";
 
-    if (activities.length === 0) {
-        activityDiv.innerHTML = "<p>No recent activity</p>";
-        return;
-    }
-
-    activities.forEach(activity => {
+    activities.forEach(a => {
         const p = document.createElement("p");
-        const displayTime = formatActivityDate(activity.timestamp);
-        p.textContent = `${activity.text} (${displayTime})`;
+        const time = new Date(a.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        p.textContent = `${a.text} (${time})`;
         activityDiv.appendChild(p);
     });
 }
-
-function addActivity(message) {
-    const activities = getActivities();
-
-    activities.unshift({
-        text: message,
-        timestamp: new Date().toISOString()
-    });
-
-    if (activities.length > 3) {
-        activities.pop();
-    }
-
-    saveActivities(activities);
-    renderActivities();
-}
-
-
-let contactToDelete = null;
-
-function openDeleteModal(id) {
-    const contact = contacts.find(c => String(c.id) === String(id));
-    if (!contact) return;
-
-    contactToDelete = id;
-
-    document.getElementById("deleteMessage").textContent =
-        `Are you sure you want to delete ${contact.name}?`;
-
-    document.getElementById("deleteModal").style.display = "flex";
-}
-
-function closeDeleteModal() {
-    document.getElementById("deleteModal").style.display = "none";
-    contactToDelete = null;
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    renderActivities();
-
-    const confirmBtn = document.getElementById("confirmDeleteBtn");
-    if (confirmBtn) {
-        confirmBtn.addEventListener("click", function () {
-            if (contactToDelete !== null) {
-                deleteContact(contactToDelete);
-                closeDeleteModal();
-            }
-        });
-    }
-});

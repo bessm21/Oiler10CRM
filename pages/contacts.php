@@ -95,12 +95,15 @@
     </div>
 </div>
 
-<div id="deleteModal" class="delete-modal">
+<div id="deleteModal" class="delete-modal" style="display: none;">
     <div class="delete-modal-box">
-        <p id="deleteMessage"></p>
+        <h3>Delete Contact</h3>
+
+        <p id="deleteMessage">Are you sure you want to delete this contact?</p>
+
         <div class="delete-actions">
-            <button id="confirmDeleteBtn">Yes</button>
-            <button onclick="closeDeleteModal()">No</button>
+            <button id="confirmDeleteBtn" onclick="confirmDeleteAction()" class="danger-btn">Yes, Delete</button>
+            <button onclick="closeDeleteModal()">No, Cancel</button>
         </div>
     </div>
 </div>

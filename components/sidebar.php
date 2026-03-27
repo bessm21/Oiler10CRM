@@ -1,4 +1,7 @@
-<?php $currentPage = $page ?? 'overview'; ?>
+<?php
+// Ensure we use the $page variable defined in index.php
+$currentPage = $page ?? 'overview';
+?>
 
 <aside class="sidebar">
     <div class="brand">
@@ -10,23 +13,33 @@
     </div>
 
     <nav class="nav-menu">
-        <a href="index.php?page=overview" class="nav-link <?php echo $currentPage === 'overview' ? 'active' : ''; ?>">
+        <a href="javascript:void(0);"
+           class="nav-link <?php echo $currentPage === 'overview' ? 'active' : ''; ?>"
+           onclick="switchPage('dashboard-view')">
             <span class="icon">🏠</span> Overview
         </a>
 
-        <a href="index.php?page=overview" class="nav-link">
+        <a href="javascript:void(0);"
+           class="nav-link"
+           onclick="switchPage('dashboard-view')">
             <span class="icon">📁</span> Projects
         </a>
 
-        <a href="index.php?page=calendar" class="nav-link <?php echo $currentPage === 'calendar' ? 'active' : ''; ?>">
+        <a href="javascript:void(0);"
+           class="nav-link <?php echo $currentPage === 'calendar' ? 'active' : ''; ?>"
+           onclick="switchPage('calendar-view')">
             <span class="icon">📅</span> Calendar
         </a>
 
-        <a href="index.php?page=overview" class="nav-link">
+        <a href="javascript:void(0);"
+           class="nav-link"
+           onclick="switchPage('dashboard-view')">
             <span class="icon">✅</span> To-Do List
         </a>
 
-        <a href="index.php?page=contacts" class="nav-link <?php echo $currentPage === 'contacts' ? 'active' : ''; ?>">
+        <a href="javascript:void(0);"
+           class="nav-link <?php echo $currentPage === 'contacts' ? 'active' : ''; ?>"
+           onclick="switchPage('contacts-view')">
             <span class="icon">👥</span> Contacts
         </a>
     </nav>

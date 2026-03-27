@@ -1,38 +1,24 @@
 <?php
-
-include "../config.php";
+require_once "../config.php";
 header("Content-Type: application/json");
 
+// Read the JSON sent by the JavaScript fetch
 $data = json_decode(file_get_contents("php://input"), true);
 
 if (!isset($data["id"])) {
-    echo json_encode([
-        "success" => false,
-        "message" => "No ID provided"
-    ]);
+    echo json_encode(["success" => false, "message" => "No ID provided"]);
     exit;
 }
 
 $id = (int)$data["id"];
 
 try {
-
+    // We MUST use double quotes for the capitalized "Contacts"
     $sql = 'DELETE FROM "Contacts" WHERE id = :id';
     $stmt = $pdo->prepare($sql);
+    $stmt->execute([":id" => $id]);
 
-    $stmt->execute([
-        ":id" => $id
-    ]);
-
-    echo json_encode([
-        "success" => true
-    ]);
-
+    echo json_encode(["success" => true]);
 } catch (PDOException $e) {
-
-    echo json_encode([
-        "success" => false,
-        "message" => $e->getMessage()
-    ]);
-
+    echo json_encode(["success" => false, "message" => $e->getMessage()]);
 }

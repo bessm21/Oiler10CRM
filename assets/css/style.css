@@ -664,52 +664,78 @@ body {
 
     #contacts-view .contactCard {
         background: white;
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 2px solid #d1d5db;
+        box-shadow: none;
+        transition: border-color 0.2s ease;
+    }
+
+    #contacts-view .contactCard:hover {
+        border-color: var(--primary-orange);
     }
 
     /* SIDEBAR */
 
     #contacts-view .contacts-sidebar .card {
         background: white;
-        padding: 15px;
+        padding: 20px;
         margin-bottom: 20px;
-        border-radius: 10px;
+        border-radius: 12px;
+        border: 2px solid #d1d5db;
+        box-shadow: none;
     }
+
+    #contacts-view .stat {
+        padding: 14px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    #contacts-view .stat:nth-child(1) { background: #fff7ed; border: 2px solid #fed7aa; }
+    #contacts-view .stat:nth-child(2) { background: #f0fdf4; border: 2px solid #bbf7d0; }
+    #contacts-view .stat:nth-child(3) { background: #eff6ff; border: 2px solid #bfdbfe; }
+
+    #contacts-view .stat p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; }
+    #contacts-view .stat h2 { font-size: 2rem; font-weight: 700; color: var(--text-main); margin: 0; }
 
     /* TAGS */
 
     #contacts-view .tag {
-        padding: 5px 10px;
+        padding: 3px 8px;
         border-radius: 5px;
-        font-size: 12px;
-        margin: 3px;
+        font-size: 11px;
         display: inline-block;
     }
 
     #contacts-view .client {
         background: #dbeafe;
+        border: 1px solid #93c5fd;
+        color: #1d4ed8;
     }
 
     #contacts-view .lead {
         background: #dcfce7;
+        border: 1px solid #86efac;
+        color: #15803d;
     }
 
     #contacts-view .hot {
-        background: #fb923c;
+        background: #fee2e2;
+        border: 1px solid #fca5a5;
+        color: #b91c1c;
     }
-
-    /* orange */
 
     #contacts-view .warm {
-        background: #fdba74;
+        background: #fef3c7;
+        border: 1px solid #fcd34d;
+        color: #92400e;
     }
 
-    /* light orange */
-
     #contacts-view .cold {
-        background: #e5e7eb;
+        background: #f3f4f6;
+        border: 1px solid #d1d5db;
+        color: #374151;
     }
 
         /* MODAL */
@@ -806,24 +832,191 @@ body {
         display: flex;
         align-items: center;
         gap: 12px;
-        margin-bottom: 10px;
     }
 
     /* AVATAR */
 
     #contacts-view .avatar {
-        width: 45px;
-        height: 45px;
+        width: 34px;
+        height: 34px;
         border-radius: 50%;
-        background: #f97316;
-        color: white;
+        background: #fff7ed;
+        border: 2px solid #fed7aa;
+        color: #c2410c;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: bold;
+        font-size: 13px;
+        flex-shrink: 0;
     }
 
-    /* DELETE BUTTON */
+    /* CARD HEADER ROW */
+
+    #contacts-view .card-header-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
+
+    #contacts-view .contactInfo {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #contacts-view .contactInfo h3 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0 0 2px 0;
+    }
+
+    #contacts-view .contactTitle {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        margin: 0;
+    }
+
+    /* THREE-DOT MENU */
+
+    #contacts-view .card-menu-wrap {
+        position: relative;
+    }
+
+    #contacts-view .menuTrigger {
+        background: none;
+        border: none;
+        color: #6b7280;
+        font-size: 1.3rem;
+        padding: 2px 6px;
+        cursor: pointer;
+        border-radius: 4px;
+        line-height: 1;
+    }
+
+    #contacts-view .menuTrigger:hover {
+        background: #f3f4f6;
+        color: var(--text-main);
+        transform: none;
+    }
+
+    #contacts-view .cardDropdown {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 28px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        z-index: 10;
+        min-width: 110px;
+        overflow: hidden;
+    }
+
+    #contacts-view .card-menu-wrap:hover .cardDropdown {
+        display: block;
+    }
+
+    #contacts-view .cardDropdown button {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 9px 14px;
+        font-size: 0.875rem;
+        background: none;
+        border: none;
+        color: var(--text-main);
+        border-radius: 0;
+        cursor: pointer;
+    }
+
+    #contacts-view .cardDropdown button:hover {
+        background: #f9fafb;
+        transform: none;
+    }
+
+    #contacts-view .cardDropdown .delete-red {
+        color: #dc2626;
+    }
+
+    #contacts-view .cardDropdown .delete-red:hover {
+        background: #fef2f2;
+    }
+
+    /* CONTACT DETAIL ROWS */
+
+    #contacts-view .contactDetail {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.78rem;
+        color: #374151;
+        margin-bottom: 4px;
+    }
+
+    #contacts-view .contactDetail svg {
+        flex-shrink: 0;
+        color: #9ca3af;
+    }
+
+    /* Email + phone on one row */
+    #contacts-view .contactDetailRow {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 4px;
+    }
+
+    #contacts-view .contact-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.75rem;
+        color: #374151;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 2px 8px;
+        text-decoration: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    #contacts-view .contact-chip svg {
+        flex-shrink: 0;
+        color: #9ca3af;
+    }
+
+    #contacts-view .contact-chip:hover {
+        color: var(--primary-orange);
+        border-color: #fed7aa;
+        background: #fff7ed;
+    }
+
+    #contacts-view .contact-link {
+        color: #374151;
+        text-decoration: none;
+    }
+
+    #contacts-view .contact-link:hover {
+        color: var(--primary-orange);
+        text-decoration: underline;
+    }
+
+    /* TAGS */
+
+    #contacts-view .contactTags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-top: 4px;
+    }
+
+    /* DELETE BUTTON (legacy, kept for modal) */
 
     #contacts-view .cardActions {
         margin-top: 12px;
