@@ -13,9 +13,8 @@ $currentPage = $page ?? 'overview';
     </div>
 
     <nav class="nav-menu">
-        <a href="javascript:void(0);"
-           class="nav-link <?php echo $currentPage === 'overview' ? 'active' : ''; ?>"
-           onclick="switchPage('dashboard-view')">
+        <a href="index.php?page=overview"
+           class="nav-link <?php echo $currentPage === 'overview' ? 'active' : ''; ?>">
             <span class="icon">🏠</span> Overview
         </a>
 
@@ -32,12 +31,6 @@ $currentPage = $page ?? 'overview';
         </a>
 
         <a href="javascript:void(0);"
-           class="nav-link"
-           onclick="switchPage('dashboard-view')">
-            <span class="icon">✅</span> To-Do List
-        </a>
-
-        <a href="javascript:void(0);"
            class="nav-link <?php echo $currentPage === 'contacts' ? 'active' : ''; ?>"
            onclick="switchPage('contacts-view')">
             <span class="icon">👥</span> Contacts
@@ -45,13 +38,13 @@ $currentPage = $page ?? 'overview';
     </nav>
 
     <div class="user-profile">
-        <div class="avatar">B</div>
+        <div class="avatar"><?php echo strtoupper(substr($_SESSION['username'] ?? 'U', 0, 1)); ?></div>
         <div class="user-info">
-            <span class="name">bodiugiulian</span>
-            <span class="email">user@gmail.com</span>
+            <span class="name"><?php echo htmlspecialchars($_SESSION['username'] ?? ''); ?></span>
+            <span class="email"><?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?></span>
         </div>
-        <button class="logout-btn">
+        <a href="logout.php" class="logout-btn">
             <span class="icon">🚪</span> Logout
-        </button>
+        </a>
     </div>
 </aside>

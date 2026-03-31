@@ -470,6 +470,9 @@ body {
 .user-info .name { font-weight: bold; font-size: 0.9rem; }
 .user-info .email { font-size: 0.8rem; color: #cbd5e1; }
 .logout-btn {
+    display: block;
+    text-align: center;
+    text-decoration: none;
     background: transparent;
     border: 1px solid rgba(255,255,255,0.2);
     color: white;
@@ -554,8 +557,11 @@ body {
 .list-item:last-child { margin-bottom: 0; }
 
 .dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; }
-.blue-dot { background-color: #3b82f6; }
-.green-dot { background-color: #22c55e; }
+.blue-dot   { background-color: #3b82f6; }
+.green-dot  { background-color: #22c55e; }
+.red-dot    { background-color: #ef4444; }
+.purple-dot { background-color: #a855f7; }
+.yellow-dot { background-color: #eab308; }
 
 .item-details { flex-grow: 1; }
 .item-details h4 { font-size: 0.95rem; margin: 0; }

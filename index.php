@@ -1,5 +1,13 @@
 <?php
 ob_start();
+session_start();
+
+// Require login
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
+
 // 1. Database connection and path handling
 require_once __DIR__ . '/config.php';
 
