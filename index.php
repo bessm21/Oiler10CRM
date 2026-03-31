@@ -13,7 +13,7 @@ require_once __DIR__ . '/config.php';
 
 // 2. Detect the initial page view from the URL (?page=...)
 $page = isset($_GET['page']) ? $_GET['page'] : 'overview';
-$allowed = ['overview', 'calendar', 'contacts'];
+$allowed = ['overview', 'projects', 'calendar', 'contacts'];
 
 if (!in_array($page, $allowed, true)) {
     $page = 'overview';
@@ -36,6 +36,10 @@ if (!in_array($page, $allowed, true)) {
 
         <div id="dashboard-view" class="main-content" style="<?php echo $page === 'overview' ? 'display:block;' : 'display:none;'; ?>">
             <?php include __DIR__ . '/pages/dashboard.php'; ?>
+        </div>
+
+        <div id="projects-view" class="main-content" style="<?php echo $page === 'projects' ? 'display:block;' : 'display:none;'; ?>">
+            <?php include __DIR__ . '/pages/projects.php'; ?>
         </div>
 
         <div id="contacts-view" class="main-content" style="<?php echo $page === 'contacts' ? 'display:block;' : 'display:none;'; ?>">

@@ -19,8 +19,8 @@ $currentPage = $page ?? 'overview';
         </a>
 
         <a href="javascript:void(0);"
-           class="nav-link"
-           onclick="switchPage('dashboard-view')">
+           class="nav-link <?php echo $currentPage === 'projects' ? 'active' : ''; ?>"
+           onclick="switchPage('projects-view')">
             <span class="icon">📁</span> Projects
         </a>
 
