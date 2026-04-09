@@ -1,4 +1,7 @@
 <?php
+session_start();
+$page = 'projects';
+$isAdmin = (($_SESSION['role'] ?? 'user') === 'admin');
 require_once "../config.php";
 
 $id = isset($_GET['id']) ? trim($_GET['id']) : '';
@@ -584,7 +587,10 @@ $projectEndDate = isset($constraints["projectEndDate"]) ? $constraints["projectE
 </head>
 <body>
 <div class="app-container">
-    <?php include "../components/sidebar.php"; ?>
+    <?php
+    $navPrefix = '../';
+    include "../components/sidebar.php";
+    ?>
 
     <main class="main-content">
         <div class="detail-page">

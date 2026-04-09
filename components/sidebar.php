@@ -1,6 +1,7 @@
 <?php
 $currentPage = $page    ?? 'overview';
 $isAdmin     = $isAdmin ?? false;
+$navPrefix   = $navPrefix ?? '';
 ?>
 
 <aside class="sidebar">
@@ -13,22 +14,22 @@ $isAdmin     = $isAdmin ?? false;
     </div>
 
     <nav class="nav-menu">
-        <a href="javascript:void(0);" onclick="switchPage('dashboard-view')"
+        <a href="<?php echo $navPrefix; ?>index.php?page=overview"
            class="nav-link <?php echo $currentPage === 'overview' ? 'active' : ''; ?>">
             <span class="icon">🏠</span> Overview
         </a>
 
-        <a href="javascript:void(0);" onclick="switchPage('projects-view')"
+        <a href="<?php echo $navPrefix; ?>index.php?page=projects"
            class="nav-link <?php echo $currentPage === 'projects' ? 'active' : ''; ?>">
             <span class="icon">📁</span> Projects
         </a>
 
-        <a href="javascript:void(0);" onclick="switchPage('calendar-view')"
+        <a href="<?php echo $navPrefix; ?>index.php?page=calendar"
            class="nav-link <?php echo $currentPage === 'calendar' ? 'active' : ''; ?>">
             <span class="icon">📅</span> Calendar
         </a>
 
-        <a href="javascript:void(0);" onclick="switchPage('contacts-view')"
+        <a href="<?php echo $navPrefix; ?>index.php?page=contacts"
            class="nav-link <?php echo $currentPage === 'contacts' ? 'active' : ''; ?>">
             <span class="icon">👥</span> Contacts
         </a>
@@ -45,7 +46,7 @@ $isAdmin     = $isAdmin ?? false;
             </span>
             <span class="email"><?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?></span>
         </div>
-        <a href="logout.php" class="logout-btn">
+        <a href="<?php echo $navPrefix; ?>logout.php" class="logout-btn">
             <span class="icon">🚪</span> Logout
         </a>
     </div>

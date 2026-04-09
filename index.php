@@ -24,7 +24,10 @@ if (!in_array($page, $allowed, true)) {
 <body>
 
 <div class="app-container">
-    <?php include __DIR__ . '/components/sidebar.php'; ?>
+    <?php
+    $navPrefix = '';
+    include __DIR__ . '/components/sidebar.php';
+    ?>
 
     <main class="content-area" style="flex-grow: 1; display: block;">
 
