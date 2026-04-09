@@ -151,3 +151,12 @@
 .auth-switch a:hover {
     text-decoration: underline;
 }
+
+/* Muted action button (used for Sign Out on pending.php) */
+.auth-btn-muted {
+    background: #64748b;
+}
+
+.auth-btn-muted:hover {
+    background: #475569;
+}

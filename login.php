@@ -18,16 +18,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($email === '' || $password === '') {
         $error = 'Please fill in all fields.';
     } else {
-        $stmt = $pdo->prepare('SELECT user_id, username, email, password_hash FROM users WHERE email = :email LIMIT 1');
+        $stmt = $pdo->prepare('SELECT user_id, username, email, password_hash, status, role FROM users WHERE email = :email LIMIT 1');
         $stmt->execute([':email' => $email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($user && password_verify($password, $user['password_hash'])) {
-            $_SESSION['user_id']  = $user['user_id'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['email']    = $user['email'];
-            header('Location: index.php');
-            exit;
+            if ($user['status'] === 'denied') {
+                $error = 'Your account has been denied. Please contact an administrator.';
+            } else {
+                $_SESSION['user_id']  = $user['user_id'];
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['email']    = $user['email'];
+                $_SESSION['status']   = $user['status'] ?? 'pending';
+                $_SESSION['role']     = $user['role']   ?? 'user';
+
+                if ($user['role'] === 'admin' || $user['status'] === 'approved') {
+                    header('Location: index.php');
+                } else {
+                    header('Location: pending.php');
+                }
+                exit;
+            }
         } else {
             $error = 'Invalid email or password.';
         }
@@ -47,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="auth-card">
     <div class="auth-logo">
-        <div class="logo-box">O10</div>
+        <img class="brand-logo" src="https://static.wixstatic.com/media/fc911f_11934eb0cff34f33943001a4acc3fcc9~mv2.png/v1/fill/w_392,h_128,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/2021_O10LogoFile%20copy.png" alt="Oiler 10">
         <div>
             <h2>Oiler 10</h2>
             <p>Customer Management</p>

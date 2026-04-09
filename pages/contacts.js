@@ -92,6 +92,8 @@ function saveContact() {
                     const idx = contacts.findIndex(c => c.id === tempId);
                     if (idx !== -1) contacts[idx].id = data.id;
                 }
+                // Keep dashboard stats in sync
+                if (typeof refreshDashboard === 'function') refreshDashboard();
             } else {
                 alert("Error saving contact: " + data.message);
                 loadContacts();
@@ -162,7 +164,10 @@ function confirmDeleteAction() {
     })
         .then(res => res.json())
         .then(data => {
-            if (!data.success) {
+            if (data.success) {
+                // Keep dashboard stats in sync
+                if (typeof refreshDashboard === 'function') refreshDashboard();
+            } else {
                 alert("Database failed to delete: " + data.message);
                 loadContacts(); // re-sync if it failed
             }

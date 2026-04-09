@@ -426,12 +426,14 @@ body {
     border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-.logo-box {
-    background-color: var(--primary-orange);
-    padding: 0.5rem;
-    border-radius: 6px;
-    font-weight: bold;
-    color: white;
+.brand-logo {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+}
+
+.sidebar-brand-logo {
+    filter: brightness(0) invert(1);
 }
 
 .brand h2 { font-size: 1.1rem; margin: 0; }
@@ -1098,3 +1100,96 @@ body {
     .delete-actions button:last-child {
         background: #e5e7eb;
     }
+
+/* ADMIN PANEL */
+.admin-panel {
+    margin-top: 1.5rem;
+    border-left: 4px solid var(--primary-orange);
+}
+
+.admin-panel .card-header .admin-refresh-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 0.35rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.admin-panel .card-header .admin-refresh-btn:hover {
+    background: #f1f5f9;
+    color: var(--text-main);
+}
+
+.admin-user-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-user-row:last-child { border-bottom: none; }
+
+.admin-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.admin-user-info strong { font-size: 0.95rem; color: var(--text-main); }
+.admin-user-info span   { font-size: 0.8rem;  color: var(--text-muted); }
+
+.admin-user-actions { display: flex; gap: 0.5rem; }
+
+.admin-approve-btn,
+.admin-deny-btn {
+    border: none;
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.admin-approve-btn {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.admin-approve-btn:hover { background: #bbf7d0; }
+
+.admin-deny-btn {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.admin-deny-btn:hover { background: #fecaca; }
+
+/* ADMIN BADGE (sidebar + dashboard header) */
+.sidebar-admin-badge,
+.admin-badge {
+    background: var(--primary-orange);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-left: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* PENDING NOTICE (pending.php) */
+.pending-notice {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    color: #92400e;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+}

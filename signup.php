@@ -45,14 +45,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Create account
                 $hash = password_hash($password, PASSWORD_BCRYPT);
                 $stmt = $pdo->prepare(
-                    'INSERT INTO users (email, username, password_hash) VALUES (:email, :username, :hash)'
+                    'INSERT INTO users (email, username, password_hash, status, role) VALUES (:email, :username, :hash, :status, :role)'
                 );
                 $stmt->execute([
                     ':email'    => $email,
                     ':username' => $username,
                     ':hash'     => $hash,
+                    ':status'   => 'pending',
+                    ':role'     => 'user',
                 ]);
-                $success = 'Account created! You can now sign in.';
+                $success = 'Account created! Your request is pending admin approval.';
             }
         }
     }
@@ -71,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="auth-card">
     <div class="auth-logo">
-        <div class="logo-box">O10</div>
+        <img class="brand-logo" src="https://static.wixstatic.com/media/fc911f_11934eb0cff34f33943001a4acc3fcc9~mv2.png/v1/fill/w_392,h_128,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/2021_O10LogoFile%20copy.png" alt="Oiler 10">
         <div>
             <h2>Oiler 10</h2>
             <p>Customer Management</p>
