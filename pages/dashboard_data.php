@@ -1,10 +1,4 @@
 <?php
-/**
- * pages/dashboard_data.php
- *
- * AJAX endpoint: returns live dashboard stats as JSON.
- * Called by refreshDashboard() in index.php after any mutation.
- */
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 
@@ -28,103 +22,101 @@ if ($sessionRole !== 'admin' && $sessionStatus !== 'approved') {
 
 require_once '../config.php';
 
-$totalProjects     = 0;
-$activeProjects    = 0;
-$planningProjects  = 0;
-$completedProjects = 0;
-$totalContacts     = 0;
-$activeLeads       = 0;
-$totalHours        = 0;
-$completionRate    = 0;
-$recentContacts    = [];
-$upcomingEvents    = [];
+$data = [
+    'totalProjects'      => 0,
+    'activeProjects'     => 0,
+    'planningProjects'   => 0,
+    'completedProjects'  => 0,
+    'totalContacts'      => 0,
+    'activeLeads'        => 0,
+    'totalHours'         => 0,
+    'completionRate'     => 0,
+    'recentContactsHtml' => '',
+    'upcomingEventsHtml' => '',
+    'error'              => false
+];
 
+// --- 1. Project Stats (Isolated) ---
 try {
-    $totalProjects = (int)$pdo->query("SELECT COUNT(*) FROM projects")->fetchColumn();
+    $data['totalProjects'] = (int)$pdo->query("SELECT COUNT(*) FROM projects")->fetchColumn();
 
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM projects WHERE status = ?");
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM projects WHERE LOWER(status) = ?");
+    $stmt->execute(['active']);
+    $data['activeProjects'] = (int)$stmt->fetchColumn();
 
-    $stmt->execute(['Active']);
-    $activeProjects = (int)$stmt->fetchColumn();
+    $stmt->execute(['planning']);
+    $data['planningProjects'] = (int)$stmt->fetchColumn();
 
-    $stmt->execute(['Planning']);
-    $planningProjects = (int)$stmt->fetchColumn();
+    $stmt->execute(['completed']);
+    $data['completedProjects'] = (int)$stmt->fetchColumn();
 
-    $stmt->execute(['Completed']);
-    $completedProjects = (int)$stmt->fetchColumn();
-
-    if ($totalProjects > 0) {
-        $completionRate = round(($completedProjects / $totalProjects) * 100);
+    if ($data['totalProjects'] > 0) {
+        $data['completionRate'] = round(($data['completedProjects'] / $data['totalProjects']) * 100);
     }
 
-    $totalHours = (int)$pdo->query("SELECT COALESCE(SUM(estimated_hours), 0) FROM projects")->fetchColumn();
-
-    $totalContacts = (int)$pdo->query('SELECT COUNT(*) FROM "Contacts"')->fetchColumn();
-
-    $stmt2 = $pdo->prepare('SELECT COUNT(*) FROM "Contacts" WHERE type = ?');
-    $stmt2->execute(['Lead']);
-    $activeLeads = (int)$stmt2->fetchColumn();
-
-    $recentContacts = $pdo->query(
-        'SELECT name, type, status FROM "Contacts" ORDER BY id DESC LIMIT 5'
-    )->fetchAll(PDO::FETCH_ASSOC);
-
-    $upcomingEvents = $pdo->query(
-        "SELECT title, event_date, color FROM calendar
-         WHERE event_date >= CURRENT_DATE
-         ORDER BY event_date ASC
-         LIMIT 5"
-    )->fetchAll(PDO::FETCH_ASSOC);
+    // FIX: Cast text to NUMERIC before SUM()
+    $data['totalHours'] = (int)$pdo->query("SELECT COALESCE(SUM(NULLIF(estimated_hours, '')::NUMERIC), 0) FROM projects")->fetchColumn();
 
 } catch (Exception $e) {
-    // Zeros remain
+    // Fail silently
 }
 
-// Build HTML snippets for the list panels
+// --- 2. Contact Stats (Isolated) ---
+$recentContacts = [];
+try {
+    $data['totalContacts'] = (int)$pdo->query("SELECT COUNT(*) FROM contacts")->fetchColumn();
+    $stmt2 = $pdo->prepare("SELECT COUNT(*) FROM contacts WHERE LOWER(type) = ?");
+    $stmt2->execute(['lead']);
+    $data['activeLeads'] = (int)$stmt2->fetchColumn();
+    $recentContacts = $pdo->query("SELECT name, type, status FROM contacts ORDER BY id DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    try {
+        $data['totalContacts'] = (int)$pdo->query('SELECT COUNT(*) FROM "Contacts"')->fetchColumn();
+        $stmt2 = $pdo->prepare('SELECT COUNT(*) FROM "Contacts" WHERE LOWER(type) = ?');
+        $stmt2->execute(['lead']);
+        $data['activeLeads'] = (int)$stmt2->fetchColumn();
+        $recentContacts = $pdo->query('SELECT name, type, status FROM "Contacts" ORDER BY id DESC LIMIT 5')->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $innerE) {
+        // Fail silently
+    }
+}
 
-$colorMap = ['blue'=>'blue-dot','green'=>'green-dot','red'=>'red-dot','purple'=>'purple-dot','yellow'=>'yellow-dot'];
-
-$recentContactsHtml = '';
+// --- Process Recent Contacts HTML ---
 if (empty($recentContacts)) {
-    $recentContactsHtml = '<p style="color:var(--text-muted);font-size:0.9rem;">No contacts yet.</p>';
+    $data['recentContactsHtml'] = '<p style="color:var(--text-muted);font-size:0.9rem;">No contacts yet.</p>';
 } else {
     foreach ($recentContacts as $c) {
         $dot    = $c['type'] === 'Client' ? 'blue-dot' : 'green-dot';
         $name   = htmlspecialchars($c['name']);
         $type   = htmlspecialchars($c['type']);
         $status = $c['status'] ? '&mdash; <span class="tag ' . strtolower(htmlspecialchars($c['status'])) . '">' . htmlspecialchars($c['status']) . '</span>' : '';
-        $recentContactsHtml .= '<div class="list-item">'
+        $data['recentContactsHtml'] .= '<div class="list-item">'
             . '<span class="dot ' . $dot . '"></span>'
             . '<div class="item-details"><h4>' . $name . '</h4><p>' . $type . ' ' . $status . '</p></div>'
             . '</div>';
     }
 }
 
-$upcomingEventsHtml = '';
-if (empty($upcomingEvents)) {
-    $upcomingEventsHtml = '<p style="color:var(--text-muted);font-size:0.9rem;">No upcoming events.</p>';
-} else {
-    foreach ($upcomingEvents as $ev) {
-        $dot   = $colorMap[$ev['color']] ?? 'blue-dot';
-        $title = htmlspecialchars($ev['title']);
-        $date  = date('M j', strtotime($ev['event_date']));
-        $upcomingEventsHtml .= '<div class="list-item">'
-            . '<span class="dot ' . $dot . '"></span>'
-            . '<div class="item-details"><h4>' . $title . '</h4></div>'
-            . '<span class="date">' . $date . '</span>'
-            . '</div>';
+// --- 3. Upcoming Events (Isolated) ---
+$colorMap = ['blue'=>'blue-dot','green'=>'green-dot','red'=>'red-dot','purple'=>'purple-dot','yellow'=>'yellow-dot'];
+try {
+    $upcomingEvents = $pdo->query("SELECT title, event_date, color FROM calendar WHERE event_date >= CURRENT_DATE ORDER BY event_date ASC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
+    if (empty($upcomingEvents)) {
+        $data['upcomingEventsHtml'] = '<p style="color:var(--text-muted);font-size:0.9rem;">No upcoming events.</p>';
+    } else {
+        foreach ($upcomingEvents as $ev) {
+            $dot   = $colorMap[$ev['color']] ?? 'blue-dot';
+            $title = htmlspecialchars($ev['title']);
+            $date  = date('M j', strtotime($ev['event_date']));
+            $data['upcomingEventsHtml'] .= '<div class="list-item">'
+                . '<span class="dot ' . $dot . '"></span>'
+                . '<div class="item-details"><h4>' . $title . '</h4></div>'
+                . '<span class="date">' . $date . '</span>'
+                . '</div>';
+        }
     }
+} catch (Exception $e) {
+    $data['upcomingEventsHtml'] = '<p style="color:var(--text-muted);font-size:0.9rem;">No upcoming events.</p>';
 }
 
-echo json_encode([
-    'totalProjects'       => $totalProjects,
-    'activeProjects'      => $activeProjects,
-    'planningProjects'    => $planningProjects,
-    'completedProjects'   => $completedProjects,
-    'totalContacts'       => $totalContacts,
-    'activeLeads'         => $activeLeads,
-    'totalHours'          => $totalHours,
-    'completionRate'      => $completionRate,
-    'recentContactsHtml'  => $recentContactsHtml,
-    'upcomingEventsHtml'  => $upcomingEventsHtml,
-]);
+echo json_encode($data);

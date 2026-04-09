@@ -13,22 +13,22 @@ $isAdmin     = $isAdmin ?? false;
     </div>
 
     <nav class="nav-menu">
-        <a href="index.php?page=overview"
+        <a href="javascript:void(0);" onclick="switchPage('dashboard-view')"
            class="nav-link <?php echo $currentPage === 'overview' ? 'active' : ''; ?>">
             <span class="icon">🏠</span> Overview
         </a>
 
-        <a href="index.php?page=projects"
+        <a href="javascript:void(0);" onclick="switchPage('projects-view')"
            class="nav-link <?php echo $currentPage === 'projects' ? 'active' : ''; ?>">
             <span class="icon">📁</span> Projects
         </a>
 
-        <a href="index.php?page=calendar"
+        <a href="javascript:void(0);" onclick="switchPage('calendar-view')"
            class="nav-link <?php echo $currentPage === 'calendar' ? 'active' : ''; ?>">
             <span class="icon">📅</span> Calendar
         </a>
 
-        <a href="index.php?page=contacts"
+        <a href="javascript:void(0);" onclick="switchPage('contacts-view')"
            class="nav-link <?php echo $currentPage === 'contacts' ? 'active' : ''; ?>">
             <span class="icon">👥</span> Contacts
         </a>
