@@ -33,23 +33,25 @@ if (!in_array($page, $allowed, true)) {
     <?php include __DIR__ . '/components/sidebar.php'; ?>
 
     <main class="content-area" style="flex-grow: 1; display: block;">
-
-        <div id="dashboard-view" class="main-content" style="<?php echo $page === 'overview' ? 'display:block;' : 'display:none;'; ?>">
-            <?php include __DIR__ . '/pages/dashboard.php'; ?>
+        <div class="main-content">
+            <?php
+            if ($page === 'overview') {
+                include __DIR__ . '/pages/dashboard.php';
+            } elseif ($page === 'projects') {
+                echo '<div id="projects-view">';
+                include __DIR__ . '/pages/projects.php';
+                echo '</div>';
+            } elseif ($page === 'contacts') {
+                echo '<div id="contacts-view">';
+                include __DIR__ . '/pages/contacts.php';
+                echo '</div>';
+            } elseif ($page === 'calendar') {
+                echo '<div id="calendar-view">';
+                include __DIR__ . '/pages/calendar.php';
+                echo '</div>';
+            }
+            ?>
         </div>
-
-        <div id="projects-view" class="main-content" style="<?php echo $page === 'projects' ? 'display:block;' : 'display:none;'; ?>">
-            <?php include __DIR__ . '/pages/projects.php'; ?>
-        </div>
-
-        <div id="contacts-view" class="main-content" style="<?php echo $page === 'contacts' ? 'display:block;' : 'display:none;'; ?>">
-            <?php include __DIR__ . '/pages/contacts.php'; ?>
-        </div>
-
-        <div id="calendar-view" class="main-content" style="<?php echo $page === 'calendar' ? 'display:block;' : 'display:none;'; ?>">
-            <?php include __DIR__ . '/pages/calendar.php'; ?>
-        </div>
-
     </main>
 </div>
 

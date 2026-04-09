@@ -15,7 +15,11 @@ if ($year < 2000 || $year > 2100) {
 }
 
 /* HANDLE FORM ACTIONS */
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+if (
+        $_SERVER["REQUEST_METHOD"] === "POST" &&
+        isset($_POST["action"]) &&
+        in_array($_POST["action"], ["add", "edit", "delete"], true)
+) {
     $action = isset($_POST["action"]) ? $_POST["action"] : "";
 
     /* ADD EVENT */
