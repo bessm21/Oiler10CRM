@@ -3,7 +3,6 @@ ob_start();
 require_once __DIR__ . '/includes/auth_guard.php';
 require_once __DIR__ . '/config.php';
 
-// Merged: Keeps your Admin check AND his Projects routing
 $isAdmin = ($_SESSION['role'] ?? 'user') === 'admin';
 
 $page    = isset($_GET['page']) ? $_GET['page'] : 'overview';
@@ -30,72 +29,31 @@ if (!in_array($page, $allowed, true)) {
     ?>
 
     <main class="content-area" style="flex-grow: 1; display: block;">
-
-        <div id="dashboard-view" class="main-content" style="<?php echo $page === 'overview' ? 'display:block;' : 'display:none;'; ?>">
-            <?php include __DIR__ . '/pages/dashboard.php'; ?>
+        <div id="<?php echo htmlspecialchars($page); ?>-view" class="main-content">
+            <?php
+            if ($page === 'overview')       include __DIR__ . '/pages/dashboard.php';
+            elseif ($page === 'projects')   include __DIR__ . '/pages/projects.php';
+            elseif ($page === 'contacts')   include __DIR__ . '/pages/contacts.php';
+            elseif ($page === 'calendar')   include __DIR__ . '/pages/calendar.php';
+            ?>
         </div>
-
-        <div id="projects-view" class="main-content" style="<?php echo $page === 'projects' ? 'display:block;' : 'display:none;'; ?>">
-            <?php include __DIR__ . '/pages/projects.php'; ?>
-        </div>
-
-        <div id="contacts-view" class="main-content" style="<?php echo $page === 'contacts' ? 'display:block;' : 'display:none;'; ?>">
-            <?php include __DIR__ . '/pages/contacts.php'; ?>
-        </div>
-
-        <div id="calendar-view" class="main-content" style="<?php echo $page === 'calendar' ? 'display:block;' : 'display:none;'; ?>">
-            <?php include __DIR__ . '/pages/calendar.php'; ?>
-        </div>
-
     </main>
 </div>
 
 <script>
     /**
-     * Swaps the visible view and updates the URL state.
-     * @param {string} pageId - The ID of the div to show (e.g., 'calendar-view')
-     */
-    function switchPage(pageId) {
-        const allViews = document.querySelectorAll('.main-content');
-        allViews.forEach(view => { view.style.display = 'none'; });
-
-        const targetView = document.getElementById(pageId);
-        if (targetView) {
-            targetView.style.display = 'block';
-        } else {
-            console.error('Navigation Error: Could not find ' + pageId);
-            return;
-        }
-
-        const pageName     = pageId.replace('-view', '');
-        const cleanURLName = (pageName === 'dashboard') ? 'overview' : pageName;
-        window.history.pushState({}, '', '?page=' + cleanURLName);
-
-        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-        if (window.event && window.event.currentTarget) {
-            window.event.currentTarget.classList.add('active');
-        }
-
-        // Refresh dashboard data whenever the user navigates back to it
-        if (pageId === 'dashboard-view') {
-            refreshDashboard();
-        }
-    }
-
-    // Handle the browser "Back" button
-    window.onpopstate = function() { location.reload(); };
-
-    /**
      * Fetches live stats from the server and updates dashboard DOM elements.
-     * Called after any mutation in Contacts or Calendar, and when navigating to Overview.
+     * Called after any mutation in Contacts or Calendar.
+     * No-ops silently if dashboard elements are not in the DOM (i.e. not on overview page).
      */
     function refreshDashboard() {
+        if (!document.getElementById('dash-total-projects')) return;
+
         fetch('pages/dashboard_data.php')
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.error) return;
 
-                // Stat cards
                 var el;
                 el = document.getElementById('dash-total-projects');
                 if (el) el.textContent = data.totalProjects;
@@ -109,7 +67,6 @@ if (!in_array($page, $allowed, true)) {
                 el = document.getElementById('dash-active-leads');
                 if (el) el.textContent = data.activeLeads;
 
-                // Bottom stat cards
                 el = document.getElementById('dash-total-hours');
                 if (el) el.textContent = data.totalHours;
 
@@ -122,7 +79,6 @@ if (!in_array($page, $allowed, true)) {
                 el = document.getElementById('dash-completion-desc');
                 if (el) el.textContent = data.completedProjects + ' of ' + data.totalProjects + ' projects completed';
 
-                // List panels
                 el = document.getElementById('dash-recent-contacts');
                 if (el && data.recentContactsHtml !== undefined) el.innerHTML = data.recentContactsHtml;
 

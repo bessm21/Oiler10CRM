@@ -235,7 +235,7 @@ $months = array(
                     foreach ($eventsByDay[$day] as $event) {
                         $color = htmlspecialchars($event["color"] ?? "blue");
                         echo "<div class='event-card $color' onclick='event.stopPropagation();'>";
-                        echo "<div class='event-title'>" . htmlspecialchars($event["title"]) . "</div>";
+                        echo "<div class='event-title' title='" . htmlspecialchars($event["title"], ENT_QUOTES) . "'>" . htmlspecialchars($event["title"]) . "</div>";
 
                         echo "<div class='event-actions'>";
                         echo "<button type='button' class='edit-btn' onclick='openEditModal("

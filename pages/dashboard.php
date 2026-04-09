@@ -139,7 +139,7 @@ function eventDotClass(string $color): string {
         <div class="card list-card">
             <div class="card-header">
                 <h3>Recent Contacts</h3>
-                <a href="javascript:void(0);" onclick="switchPage('contacts-view')">View all</a>
+                <a href="index.php?page=contacts">View all</a>
             </div>
             <div id="dash-recent-contacts">
                 <?php if (empty($recentContacts)): ?>
@@ -165,7 +165,7 @@ function eventDotClass(string $color): string {
         <div class="card list-card">
             <div class="card-header">
                 <h3>Upcoming Events</h3>
-                <a href="javascript:void(0);" onclick="switchPage('calendar-view')">View calendar</a>
+                <a href="index.php?page=calendar">View calendar</a>
             </div>
             <div id="dash-upcoming-events">
                 <?php if (empty($upcomingEvents)): ?>
