@@ -3,10 +3,11 @@ ob_start();
 require_once __DIR__ . '/includes/auth_guard.php';
 require_once __DIR__ . '/config.php';
 
+// Merged: Keeps your Admin check AND his Projects routing
 $isAdmin = ($_SESSION['role'] ?? 'user') === 'admin';
 
 $page    = isset($_GET['page']) ? $_GET['page'] : 'overview';
-$allowed = ['overview', 'calendar', 'contacts'];
+$allowed = ['overview', 'projects', 'calendar', 'contacts'];
 
 if (!in_array($page, $allowed, true)) {
     $page = 'overview';
@@ -29,6 +30,10 @@ if (!in_array($page, $allowed, true)) {
 
         <div id="dashboard-view" class="main-content" style="<?php echo $page === 'overview' ? 'display:block;' : 'display:none;'; ?>">
             <?php include __DIR__ . '/pages/dashboard.php'; ?>
+        </div>
+
+        <div id="projects-view" class="main-content" style="<?php echo $page === 'projects' ? 'display:block;' : 'display:none;'; ?>">
+            <?php include __DIR__ . '/pages/projects.php'; ?>
         </div>
 
         <div id="contacts-view" class="main-content" style="<?php echo $page === 'contacts' ? 'display:block;' : 'display:none;'; ?>">
@@ -140,15 +145,15 @@ if (!in_array($page, $allowed, true)) {
                 var html = '';
                 users.forEach(function(u) {
                     html += '<div class="admin-user-row">'
-                          + '<div class="admin-user-info">'
-                          + '<strong>' + escHtml(u.username) + '</strong>'
-                          + '<span>' + escHtml(u.email) + '</span>'
-                          + '</div>'
-                          + '<div class="admin-user-actions">'
-                          + '<button class="admin-approve-btn" onclick="adminAction(\'approve\',\'' + u.user_id + '\')">Approve</button>'
-                          + '<button class="admin-deny-btn"    onclick="adminAction(\'deny\',\''    + u.user_id + '\')">Deny</button>'
-                          + '</div>'
-                          + '</div>';
+                        + '<div class="admin-user-info">'
+                        + '<strong>' + escHtml(u.username) + '</strong>'
+                        + '<span>' + escHtml(u.email) + '</span>'
+                        + '</div>'
+                        + '<div class="admin-user-actions">'
+                        + '<button class="admin-approve-btn" onclick="adminAction(\'approve\',\'' + u.user_id + '\')">Approve</button>'
+                        + '<button class="admin-deny-btn"    onclick="adminAction(\'deny\',\''    + u.user_id + '\')">Deny</button>'
+                        + '</div>'
+                        + '</div>';
                 });
                 panel.innerHTML = html;
             })
